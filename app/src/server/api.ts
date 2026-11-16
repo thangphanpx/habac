@@ -6,6 +6,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { zValidator } from '@hono/zod-validator'
 import { z, type ZodType } from 'zod'
+import { get, put } from '@vercel/blob'
 import { mkdir } from 'node:fs/promises'
 import { sql } from './db'
 import { SESSION_SECONDS, createSession, destroySession, destroyUserSessions, tooMany, userFromToken, verifyLogin } from './auth'
@@ -15,7 +16,10 @@ import type { SessionUser } from '../lib/types'
 type Env = { Variables: { user: SessionUser } }
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? './uploads'
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+const USE_BLOB = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)
+if (process.env.VERCEL && !USE_BLOB) throw new Error('Thiếu cấu hình Vercel Blob cho ảnh tải lên')
+// Chừa chỗ cho multipart trong giới hạn request 4.5 MB của Vercel Functions.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024
 const COOKIE_NAME = 'sid'
 
 const clientIp = (c: Context) => c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local'
@@ -106,16 +110,24 @@ const IMAGE_SIGNATURES: { ext: string; matches: (b: Uint8Array) => boolean }[] =
 const detectImageExtension = (bytes: Uint8Array) => IMAGE_SIGNATURES.find(signature => signature.matches(bytes))?.ext
 
 const upload = new Hono<Env>()
-upload.post('/', bodyLimit({ maxSize: MAX_UPLOAD_BYTES + 100_000, onError: c => c.json({ error: 'Ảnh tối đa 5 MB' }, 413) }), async c => {
+upload.post('/', bodyLimit({ maxSize: MAX_UPLOAD_BYTES + 100_000, onError: c => c.json({ error: 'Ảnh tối đa 4 MB' }, 413) }), async c => {
   const body = await c.req.parseBody()
   const file = body.file
   if (!(file instanceof File)) return c.json({ error: 'Thiếu file ảnh' }, 400)
-  if (file.size > MAX_UPLOAD_BYTES) return c.json({ error: 'Ảnh tối đa 5 MB' }, 413)
+  if (file.size > MAX_UPLOAD_BYTES) return c.json({ error: 'Ảnh tối đa 4 MB' }, 413)
   const ext = detectImageExtension(new Uint8Array(await file.slice(0, 12).arrayBuffer()))
   if (!ext) return c.json({ error: 'Chỉ nhận ảnh PNG, JPG, WebP hoặc GIF' }, 415)
   const name = `${crypto.randomUUID()}.${ext}`
-  await mkdir(UPLOAD_DIR, { recursive: true })
-  await Bun.write(`${UPLOAD_DIR}/${name}`, file)
+  if (USE_BLOB) {
+    await put(`uploads/${name}`, file, {
+      access: 'private',
+      addRandomSuffix: false,
+      contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+    })
+  } else {
+    await mkdir(UPLOAD_DIR, { recursive: true })
+    await Bun.write(`${UPLOAD_DIR}/${name}`, file)
+  }
   return c.json({ url: `/uploads/${name}` }, 201)
 })
 
@@ -250,6 +262,17 @@ app.route('/api/admin', admin)
 app.get('/uploads/:name', async c => {
   const name = c.req.param('name')
   if (!/^[0-9a-f-]{36}\.(png|jpg|webp|gif)$/.test(name)) return c.notFound()
+  if (USE_BLOB) {
+    const result = await get(`uploads/${name}`, { access: 'private' })
+    if (!result) return c.notFound()
+    return new Response(result.stream, {
+      headers: {
+        'content-type': result.blob.contentType ?? 'application/octet-stream',
+        'x-content-type-options': 'nosniff',
+        'cache-control': 'public, max-age=31536000, immutable',
+      },
+    })
+  }
   const file = Bun.file(`${UPLOAD_DIR}/${name}`)
   if (!(await file.exists())) return c.notFound()
   return new Response(file, { headers: { 'content-type': file.type, 'x-content-type-options': 'nosniff', 'cache-control': 'public, max-age=31536000, immutable' } })

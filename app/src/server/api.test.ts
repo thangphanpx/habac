@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { app } from './api'
 import { sql } from './db'
+import { unlink } from 'node:fs/promises'
+import { del } from '@vercel/blob'
 
 // Kiểm thử tích hợp trên PostgreSQL thật (cần `bun run db:up` và `db:migrate`).
 // Dữ liệu dùng hậu tố riêng và được dọn sau khi chạy.
@@ -31,6 +33,7 @@ const userId = async (email: string): Promise<number> => (await sql`select id fr
 const service = { slug: `${tag}-dv`, title: 'Dịch vụ thử', subtitle: '', image: '/assets/images/plant.webp', intro: 'i', description: 'd', scope: ['a', 'b'], position: 99, published: true }
 const inquiryForm = { name: tag, phone: '0912 345 678', topic: 'Nhu cầu khác', message: 'xin tư vấn' }
 const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
+const uploadedUrls: string[] = []
 
 const uploadFile = (bytes: Uint8Array<ArrayBuffer>, cookie: string) => {
   const form = new FormData()
@@ -44,6 +47,13 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  for (const url of uploadedUrls) {
+    if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
+      await del(url.slice(1))
+    } else {
+      await unlink(`${process.env.UPLOAD_DIR ?? './uploads'}/${url.split('/').pop()}`)
+    }
+  }
   await sql`delete from users where email like ${`${tag}-%`}`
   await sql`delete from services where slug like ${`${tag}-%`}`
   await sql`delete from inquiries where name = ${tag}`
@@ -84,7 +94,27 @@ describe('given an editor session', () => {
   it('a_png_upload_is_stored_and_served', async () => {
     const response = await uploadFile(pngBytes, await login(emails.editor))
     const { url } = await response.json()
-    expect([response.status, (await send(url)).status]).toEqual([201, 200])
+    uploadedUrls.push(url)
+    const image = await send(url)
+    expect([response.status, image.status]).toEqual([201, 200])
+    expect(image.headers.get('content-type')).toBe('image/png')
+    expect(new Uint8Array(await image.arrayBuffer())).toEqual(pngBytes)
+  })
+
+  it('a_4_mb_image_is_accepted_but_a_larger_one_is_rejected', async () => {
+    const bytes = new Uint8Array(4 * 1024 * 1024)
+    bytes.set(pngBytes)
+    const cookie = await login(emails.editor)
+    const accepted = await uploadFile(bytes, cookie)
+    expect(accepted.status).toBe(201)
+    uploadedUrls.push((await accepted.json()).url)
+    const oversized = new Uint8Array(bytes.length + 1)
+    oversized.set(pngBytes)
+    expect((await uploadFile(oversized, cookie)).status).toBe(413)
+  })
+
+  it('a_missing_upload_returns_404', async () => {
+    expect((await send(`/uploads/${crypto.randomUUID()}.png`)).status).toBe(404)
   })
 
   it('a_script_disguised_as_png_is_rejected', async () => {

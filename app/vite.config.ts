@@ -5,5 +5,5 @@ import viteReact from '@vitejs/plugin-react'
 
 export default defineConfig({
   server: { port: 30001, strictPort: true },
-  plugins: [tanstackStart(), nitro({ preset: 'bun' }), viteReact()],
+  plugins: [tanstackStart(), nitro({ preset: process.env.VERCEL ? 'vercel' : 'bun' }), viteReact()],
 })

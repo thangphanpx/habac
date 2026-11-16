@@ -74,11 +74,13 @@ Kiểm tra bản mới: 14 trang ở 5 kích thước (320, 390, 768, 1024, 1440
 
 ## Git
 
-Remote `origin`: `git@github.com:thangphanpx/habac.git`. Nhánh làm việc: `design/ngan-ha`, dựa trên lịch sử `origin/master`. Chỉ đưa mã website, tài nguyên và script build vào thay đổi thiết kế; các thay đổi hoặc file thiếu từ bản sao dự án cũ được giữ nguyên để đối chiếu riêng. Chưa push lên GitHub; kết nối SSH cần khóa được cấp quyền. Không tự tạo hoặc cập nhật ZIP.
+Remote `origin`: `https://github.com/thangphanpx/habac.git`. Nhánh làm việc: `design/ngan-ha`, dựa trên lịch sử `origin/master`. Bản động nằm trong `app/`; bản tĩnh và dữ liệu nguồn cũ được giữ để đối chiếu. Push qua HTTPS với tài khoản có quyền ghi vào repo. Không đưa `.env`, token, cache hay file thiết kế mới vào commit. Không tự tạo hoặc cập nhật ZIP.
 
 Để đăng website, đưa **nội dung bên trong `dist/`** lên static hosting. Các thư mục HTTrack và tài nguyên cũ ở ngoài `dist/` được giữ để đối chiếu, không cần tải lên hosting.
 
 ## Demo trên Vercel
+
+**Bản động mới:** triển khai từ thư mục `app/`, gồm admin, PostgreSQL và ảnh upload bền vững. Xem [hướng dẫn bản động](app/README.md#deploy-vercel). Các cấu hình static bên dưới chỉ mô tả bản HTML trước đây; không dùng để deploy bản động.
 
 Demo công khai: **https://ngan-ha-ec-demo.vercel.app/**. Dự án `ngan-ha-ec-demo`, scope `phanthang1994s-projects`. Bản demo được deploy bằng CLI; chưa kết nối tự động deploy từ GitHub.
 

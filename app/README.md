@@ -16,7 +16,20 @@ bun run dev                 # http://localhost:30001  (admin: /admin)
 
 Production: `bun run build` rồi `bun run start` (cổng mặc định 3000, đổi bằng biến `PORT`). Khi chạy sau HTTPS đặt `COOKIE_SECURE=true`.
 
-Kiểm tra: `bun run typecheck`, `bun run test` (test API chạy trên PostgreSQL thật, cần `db:up` + `db:migrate`).
+Kiểm tra: `bun run build`, `bun run typecheck`, `bun run test` (test API chạy trên PostgreSQL thật, cần `db:up` + `db:migrate`). Build cập nhật các kiểu route trước khi typecheck.
+
+## Deploy Vercel
+
+Dự án Vercel `ngan-ha-ec-demo` dùng bản động trong thư mục `app/`, Bun 1.4 và Nitro preset `vercel`. Bản HTML tĩnh và cấu hình ở thư mục gốc chỉ dành cho bản bàn giao cũ.
+
+- Database: Neon Free, vùng Singapore; dùng `DATABASE_URL` có SSL do integration cung cấp.
+- Ảnh upload: Vercel Blob **private**, đã liên kết cùng project; dùng `BLOB_READ_WRITE_TOKEN` hoặc OIDC (`BLOB_STORE_ID`). Đường dẫn công khai vẫn là `/uploads/<tên-ảnh>`, do API phục vụ.
+- Đặt `COOKIE_SECURE=true` cho production. Không đưa `.env` hay token vào Git.
+- Khởi tạo schema bằng `db:migrate`, rồi `db:seed` với biến môi trường production được nạp an toàn. `ADMIN_EMAIL` và `ADMIN_PASSWORD` chỉ cần cho lần tạo quản trị viên đầu tiên, không cần lưu trên Vercel.
+- Tài khoản quản trị production của lần triển khai này được lưu cục bộ trong `.vercel/admin.env` (Git và upload bỏ qua). Mật khẩu được sinh ngẫu nhiên; nên đổi sau lần đăng nhập đầu tiên tại `/admin/account`.
+- Từ `app/`, chạy `vercel --prod` để cập nhật project đã liên kết. Khi import từ GitHub, chọn nhánh `design/ngan-ha` và Root Directory là `app`; không dùng cấu hình static `dist/` ở thư mục gốc.
+
+Ảnh tối đa **4 MiB** để cả multipart nằm dưới giới hạn request 4.5 MB của Vercel Functions. Nội dung ảnh được kiểm tra trước khi lưu. Blob lưu bền vững qua các lần deploy; local không cấu hình Blob vẫn dùng `UPLOAD_DIR`. Không chạy test tích hợp trên database production.
 
 ## Cấu trúc
 
@@ -41,12 +54,12 @@ Thêm vai trò mới: sửa `ROLES` trong `src/lib/permissions.ts` và danh sác
 
 ## Bảo mật đã có
 
-Mật khẩu băm argon2id (`Bun.password`); phiên lưu hash trong DB, cookie `HttpOnly` + `SameSite=Lax`; kiểm tra Origin cho mọi request ghi dạng form/upload; giới hạn thử đăng nhập và gửi form liên hệ; ô ẩn chống bot; ảnh tải lên được kiểm tra bằng chữ ký file (PNG/JPG/WebP/GIF, ≤ 5 MB, không nhận SVG); ảnh trong bài chỉ nhận đường dẫn nội bộ.
+Mật khẩu băm argon2id (`Bun.password`); phiên lưu hash trong DB, cookie `HttpOnly` + `SameSite=Lax`; kiểm tra Origin cho mọi request ghi dạng form/upload; giới hạn thử đăng nhập và gửi form liên hệ; ô ẩn chống bot; ảnh tải lên được kiểm tra bằng chữ ký file (PNG/JPG/WebP/GIF, ≤ 4 MiB, không nhận SVG); ảnh trong bài chỉ nhận đường dẫn nội bộ.
 
 ## Giới hạn đã biết
 
 - Bộ giới hạn tốc độ nằm trong RAM của một tiến trình; chạy nhiều instance cần Redis hoặc bảng DB.
-- Ảnh tải lên lưu ở thư mục `uploads/` trên đĩa (đặt `UPLOAD_DIR`, nhớ backup hoặc mount volume); ảnh bị thay/xóa không tự dọn khỏi đĩa.
+- Local: ảnh tải lên lưu ở thư mục `uploads/` trên đĩa (đặt `UPLOAD_DIR`, nhớ backup hoặc mount volume). Vercel dùng Blob; ảnh bị thay/xóa khỏi nội dung không tự dọn khỏi kho lưu.
 - Văn bản trang chủ, giới thiệu, quy trình và FAQ vẫn nằm trong code (`src/routes/_site/index.tsx`, `src/components/sections.tsx`), chưa sửa được ở admin.
 - Địa chỉ IP lấy từ `X-Forwarded-For`; chỉ đáng tin khi chạy sau reverse proxy của bạn.
 - Chưa gửi email/thông báo khi có yêu cầu mới; xem trong admin.

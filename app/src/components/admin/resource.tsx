@@ -55,7 +55,7 @@ function ImageInput({ value, onChange }: { value: string; onChange: (url: string
       <div className="form-grid">
         <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={busy} onChange={event => onFile(event.target.files?.[0])} />
         <input value={value} onChange={event => onChange(event.target.value)} placeholder="/uploads/… hoặc /assets/images/…" />
-        <small>{busy ? 'Đang tải ảnh lên…' : 'Chọn ảnh mới (PNG/JPG/WebP/GIF, tối đa 5 MB) hoặc nhập đường dẫn ảnh có sẵn.'}</small>
+        <small>{busy ? 'Đang tải ảnh lên…' : 'Chọn ảnh mới (PNG/JPG/WebP/GIF, tối đa 4 MB) hoặc nhập đường dẫn ảnh có sẵn.'}</small>
         <p className="error" hidden={!error}>{error}</p>
       </div>
     </div>
