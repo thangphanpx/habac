@@ -54,7 +54,7 @@ Form kiểm tra tên, điện thoại và định dạng email. Khi hợp lệ, 
 
 ## Thiết kế và nội dung
 
-Phiên bản thiết kế mới mang chủ đề **“Nguồn nước sạch. Giá trị bền lâu.”**: nền trắng lạnh, xanh mực và sắc bạc hà; font Hanken Grotesk lưu cục bộ. Phần mở đầu đặt ảnh lắp đặt bồn xử lý cạnh ảnh dòng nước, tiêu đề lớn lệch nhịp. Các phần công trình, thiết bị, quy trình và FAQ có bố cục riêng; footer mở bằng wordmark lớn. Thiết kế được xây dựng độc lập với website cũ và dự án phòng khám.
+Phần mở đầu đã trở lại bản **“Vì dòng chảy xanh”** với ảnh thiên nhiên phủ rộng, chữ trắng và nút xanh non. Các phần tiếp theo dùng nền trắng lạnh, xanh mực và sắc bạc hà; font Hanken Grotesk lưu cục bộ. Các phần công trình, thiết bị, quy trình và FAQ có bố cục riêng; footer mở bằng wordmark lớn. Mục “Đã đồng hành cùng” nằm trong một dải nền riêng, bốn cột đều trên desktop và hai cột trên tablet/mobile. Thiết kế được xây dựng độc lập với website cũ và dự án phòng khám.
 
 Trang chủ có cụm chọn giải pháp tương tác, cập nhật hình ảnh, phạm vi công việc và liên kết đến trang chi tiết. Có thể dùng chuột, cảm ứng hoặc phím mũi tên/Home/End. Khi tắt JavaScript, cả ba giải pháp vẫn hiện đầy đủ.
 
