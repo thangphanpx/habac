@@ -1,0 +1,8 @@
+.idea
+.taste-skill/
+__pycache__/
+*.pyc
+*.zip
+cookies.txt
+hts-cache/
+hts-log.txt
