@@ -80,6 +80,8 @@ Remote `origin`: `git@github.com:thangphanpx/habac.git`. Nhánh làm việc: `de
 
 ## Demo trên Vercel
 
+Demo công khai: **https://ngan-ha-ec-demo.vercel.app/**. Dự án `ngan-ha-ec-demo`, scope `phanthang1994s-projects`. Bản demo được deploy bằng CLI; chưa kết nối tự động deploy từ GitHub.
+
 `vercel.json` chọn website tĩnh, bỏ bước cài đặt/build trên máy chủ và phục vụ `dist/`. `.vercelignore` chỉ cho phép upload `dist/` và cấu hình Vercel. Thư mục `.vercel/` chứa liên kết dự án cục bộ và được Git bỏ qua.
 
 Sau khi chỉnh nội dung, chạy `python scripts/build.py` và `python scripts/check.py` trước khi deploy. Dùng `vercel --prod` từ thư mục gốc để cập nhật bản demo đã liên kết. Nếu import repo qua Vercel, chọn nhánh `design/ngan-ha`; cấu hình output đã có trong repo. Bản build `dist/` được lưu trong Git nên Vercel không cần Python để chạy website.
