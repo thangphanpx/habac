@@ -48,7 +48,7 @@ Lệnh build tạo lại HTML ở thư mục gốc và cập nhật `dist/`. Nh�
 
 ## Hoạt động của form
 
-Nút liên hệ nhanh luôn hiện trên mọi trang dưới dạng ba bong bóng tròn bên trái: gọi **0987 810 694**, nhắn **Zalo**, gửi **nganhaec@gmail.com**. Trên desktop cố định góc dưới và xếp dọc; trên điện thoại xếp ngang trong hàng riêng dưới header để không che nội dung. Chạm/bấm để mở kênh liên hệ. Không có chức năng kéo thả; các liên kết hoạt động cả khi tắt JavaScript.
+Nút liên hệ nhanh luôn hiện trên mọi trang dưới dạng ba bong bóng tròn bên phải: gọi **0987 810 694**, nhắn **Zalo**, gửi **nganhaec@gmail.com**. Trên desktop cố định góc dưới và xếp dọc; trên điện thoại xếp ngang trong hàng riêng dưới header để không che nội dung. Chạm/bấm để mở kênh liên hệ. Không có chức năng kéo thả; các liên kết hoạt động cả khi tắt JavaScript.
 
 Form kiểm tra tên, điện thoại và định dạng email. Khi hợp lệ, form tạo liên kết mở ứng dụng email với nội dung đã điền. **Chưa có backend nhận thông tin**; yêu cầu chỉ được gửi sau khi người dùng bấm gửi trong ứng dụng email. Có nút gọi điện, liên kết email và Zalo để liên hệ trực tiếp. Dữ liệu form không được lưu vào trình duyệt.
 
