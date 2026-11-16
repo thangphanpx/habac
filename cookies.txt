@@ -1,4 +1,5 @@
-# HTTrack Website Copier Cookie File
+﻿# HTTrack Website Copier Cookie File
 # This file format is compatible with Netscape cookies
-dongthinh.com.vn	TRUE	/	FALSE	1999999999	ASPSESSIONIDCAQRBQCA	LKMHDAJCEELAEDMLIININKBL
+nganhaec.com	TRUE	/	FALSE	1999999999	ASPSESSIONIDCAQRBQCA	LKMHDAJCEELAEDMLIININKBL
+
 
