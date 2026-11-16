@@ -6,3 +6,4 @@ __pycache__/
 cookies.txt
 hts-cache/
 hts-log.txt
+.vercel/

@@ -77,3 +77,9 @@ Kiểm tra bản mới: 14 trang ở 5 kích thước (320, 390, 768, 1024, 1440
 Remote `origin`: `git@github.com:thangphanpx/habac.git`. Nhánh làm việc: `design/ngan-ha`, dựa trên lịch sử `origin/master`. Chỉ đưa mã website, tài nguyên và script build vào thay đổi thiết kế; các thay đổi hoặc file thiếu từ bản sao dự án cũ được giữ nguyên để đối chiếu riêng. Chưa push lên GitHub; kết nối SSH cần khóa được cấp quyền. Không tự tạo hoặc cập nhật ZIP.
 
 Để đăng website, đưa **nội dung bên trong `dist/`** lên static hosting. Các thư mục HTTrack và tài nguyên cũ ở ngoài `dist/` được giữ để đối chiếu, không cần tải lên hosting.
+
+## Demo trên Vercel
+
+`vercel.json` chọn website tĩnh, bỏ bước cài đặt/build trên máy chủ và phục vụ `dist/`. `.vercelignore` chỉ cho phép upload `dist/` và cấu hình Vercel. Thư mục `.vercel/` chứa liên kết dự án cục bộ và được Git bỏ qua.
+
+Sau khi chỉnh nội dung, chạy `python scripts/build.py` và `python scripts/check.py` trước khi deploy. Dùng `vercel --prod` từ thư mục gốc để cập nhật bản demo đã liên kết. Nếu import repo qua Vercel, chọn nhánh `design/ngan-ha`; cấu hình output đã có trong repo. Bản build `dist/` được lưu trong Git nên Vercel không cần Python để chạy website.
